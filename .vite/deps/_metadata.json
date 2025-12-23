@@ -1,0 +1,43 @@
+{
+  "hash": "9e3efa4a",
+  "configHash": "a8a6a72f",
+  "lockfileHash": "e3b0c442",
+  "browserHash": "e84b962d",
+  "optimized": {
+    "@telemetryos/sdk": {
+      "src": "../../my-app/node_modules/@telemetryos/sdk/dist/index.js",
+      "file": "@telemetryos_sdk.js",
+      "fileHash": "86a14fc1",
+      "needsInterop": false
+    },
+    "@telemetryos/sdk/react": {
+      "src": "../../my-app/node_modules/@telemetryos/sdk/dist/react.js",
+      "file": "@telemetryos_sdk_react.js",
+      "fileHash": "7202383e",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../my-app/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "db55c529",
+      "needsInterop": true
+    },
+    "react-router": {
+      "src": "../../my-app/node_modules/react-router/dist/development/index.mjs",
+      "file": "react-router.js",
+      "fileHash": "0dca7bb1",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-JF6SAR7X": {
+      "file": "chunk-JF6SAR7X.js"
+    },
+    "chunk-UXZXGIYB": {
+      "file": "chunk-UXZXGIYB.js"
+    },
+    "chunk-5WRI5ZAA": {
+      "file": "chunk-5WRI5ZAA.js"
+    }
+  }
+}

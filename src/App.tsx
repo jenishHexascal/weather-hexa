@@ -1,22 +1,19 @@
-import { createBrowserRouter, RouterProvider, useLoaderData } from 'react-router'
 import { Render } from './views/Render'
 import { Settings } from './views/Settings'
-import './styles/tokens.css';
-import './styles/components.css';
 
-const router = createBrowserRouter([
-  {
-    path: '/render',
-    Component: Render,
-  },
-  {
-    path: '/settings',
-    Component: Settings,
-  },
-])
+import './styles/tokens.css'
+import './styles/components.css'
 
 export function App() {
-  return (
-    <RouterProvider router={router} />
-  )
+  // Safe check for browser environment
+  const path =
+    typeof window !== 'undefined'
+      ? window.location.pathname
+      : '/render'
+
+  if (path.includes('settings')) {
+    return <Settings />
+  }
+
+  return <Render />
 }

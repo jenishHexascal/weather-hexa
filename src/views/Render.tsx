@@ -89,7 +89,7 @@ export const Render: React.FC = () => {
       }}
       view={view}
       setView={setView}
-      forecast={visibleForecast.map((item) => ({
+      forecast={visibleForecast.map((item: any) => ({
         day:
           view === "12H"
             ? getHourFromDate(item.Datetime)

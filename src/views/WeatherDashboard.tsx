@@ -1,6 +1,8 @@
 import React from "react";
 import { weatherIcons } from "./weatherIcons";
 import { LocationIcon } from "../icons/LocationIcon";
+import { WindIcon } from "../icons/WindIcon";
+import { HumidityIcon } from "../icons/HumidityIcon";
 
 interface CurrentWeather {
   city: string;
@@ -125,6 +127,16 @@ export const WeatherDashboard: React.FC<Props> = ({
     };
   };
 
+  const getGreeting = (time: string): string => {
+    // expected format: "HH:MM" (24 hour)
+    const hour = parseInt(time.split(":")[0], 10);
+
+    if (hour >= 5 && hour < 12) return "Good Morning";
+    if (hour >= 12 && hour < 17) return "Good Afternoon";
+    if (hour >= 17 && hour < 21) return "Good Evening";
+    return "Good Night";
+  };
+
   const getBackgroundOverlayStyle = () => {
     // Overlay to control opacity - darker overlay = less visible background
     const opacity = (100 - backgroundOpacity) / 100;
@@ -149,36 +161,59 @@ export const WeatherDashboard: React.FC<Props> = ({
     <div className="weather-dashboard" style={getBackgroundStyle()}>
       <div style={getBackgroundOverlayStyle()}></div>
       <div style={{ position: "relative", zIndex: 1 }}>
+        <div className="weather-top-bar">
+          <div className="location-info">
+            <LocationIcon size={32} />
+            <span className="city-name">{current.city}</span>
+          </div>
+
+          <span className="current-date">{current.date}</span>
+
+          <div className="date-time">
+             <div className="greeting">{getGreeting(current.time)}</div>
+            <span className="time">{current.time}</span>
+          </div>
+        </div>
         {/* Top Section */}
         <div className="current-weather">
-          <div className="weather-header">
-            <div className="location-info">
-              <div className="city-name">
-                <LocationIcon size={30} />
-                <span>{current.city}</span>
+          <div className="current-left">
+            <div className="current-center">
+              <div className="main-icon">
+                {weatherIcons[current.code]?.({ size: 250 })}
               </div>
-              <div className="date-time">
-                <span className="date">{current.date}</span>
-                <span className="time">{current.time}</span>
-              </div>
-            </div>
-            <div className="temperature-section">
-              <div className="temp-display">
-                <span className="main-temp-value">{displayTemp}</span>
-                <span className="temp-unit">°{temperatureUnit}</span>
-              </div>
-              <p className="condition-text">{current.condition}</p>
-              {displayFeelsLike !== undefined && (
-                <p className="feels-like">
-                  Feels like {displayFeelsLike}°{temperatureUnit}
-                </p>
-              )}
             </div>
           </div>
 
           <div className="current-center">
-            <div className="main-icon">
-              {weatherIcons[current.code]?.({ size: 350 })}
+            <div className="temperature-section">
+              <div className="temperature-content">
+                <div className="temp-display">
+                  <span className="main-temp-value">{displayTemp}</span>
+                  <span className="temp-unit">°{temperatureUnit}</span>
+                </div>
+                <p className="condition-text">{current.condition}</p>
+                {displayFeelsLike !== undefined && (
+                  <p className="feels-like">
+                    Feels like {displayFeelsLike}°{temperatureUnit}
+                  </p>
+                )}
+              </div>
+              <div className="weather-metrics-inline">
+                <div className="metric-inline">
+                  <WindIcon size={36} />
+                  <span className="metric-value-inline">
+                    {current.WindSpeed} <span className="metric-unit-inline">km/h</span>
+                  </span>
+                </div>
+                {current.Humidity !== undefined && (
+                  <div className="metric-inline">
+                    <HumidityIcon size={36} />
+                    <span className="metric-value-inline">
+                      {current.Humidity} <span className="metric-unit-inline">%</span>
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -192,7 +227,7 @@ export const WeatherDashboard: React.FC<Props> = ({
               </div>
             )}
 
-            {current.Humidity !== undefined && (
+            {/* {current.Humidity !== undefined && (
               <div className="metric">
                 <span className="label">Humidity</span>
                 <span className="value">
@@ -213,7 +248,7 @@ export const WeatherDashboard: React.FC<Props> = ({
                   </span>
                 )}
               </span>
-            </div>
+            </div> */}
 
             <div className="metric">
               <span className="label">Pressure</span>

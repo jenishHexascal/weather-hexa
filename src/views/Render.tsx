@@ -4,6 +4,7 @@ import { WeatherDashboard } from "./WeatherDashboard";
 import {
   useLocationsStoreState,
   useLocationModeStoreState,
+  useSelectedLocationIdStoreState,
   useCycleDurationStoreState,
   useTransitionStyleStoreState,
   useForecastRangeStoreState,
@@ -17,6 +18,7 @@ import {
   useDateFormatStoreState,
   type LocationConfig,
 } from "../hooks/store";
+import { getCurrentLocation, reverseGeocode } from "../utils/geolocation";
 import "../styles/weather.css";
 
 const formatDate = (date: Date, timeZone: string, format: string): string => {
@@ -107,8 +109,9 @@ const convertTemp = (temp: number, unit: 'C' | 'F'): number => {
 
 export const Render: React.FC = () => {
   // Get all settings from store
-  const [isLoadingLocations, locations] = useLocationsStoreState();
-  const [isLoadingMode, locationMode] = useLocationModeStoreState();
+  const [isLoadingLocations, locations, setLocations] = useLocationsStoreState();
+  const [isLoadingMode, locationMode, setLocationMode] = useLocationModeStoreState();
+  const [isLoadingSelected, selectedLocationId, setSelectedLocationId] = useSelectedLocationIdStoreState();
   const [isLoadingCycle, cycleDuration] = useCycleDurationStoreState();
   const [isLoadingTransition, transitionStyle] = useTransitionStyleStoreState();
   const [isLoadingForecast, forecastRange, setForecastRange] = useForecastRangeStoreState();
@@ -125,15 +128,142 @@ export const Render: React.FC = () => {
   const [transitioning, setTransitioning] = useState(false);
   const cycleIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Get current location
-  const currentLocation = locations.length > 0 ? locations[currentLocationIndex] : null;
-  const cityToFetch = currentLocation?.city || (locations.length === 0 ? "Delhi, India" : "");
+  // Filter locations based on mode
+  // If auto mode is enabled but no auto locations exist, fall back to manual locations
+  const filteredLocations = React.useMemo(() => {
+    if (locationMode === 'auto') {
+      const autoLocs = locations.filter(loc => loc.isAutoLocation);
+      // If no auto locations, fall back to manual locations
+      if (autoLocs.length === 0) {
+        return locations.filter(loc => !loc.isAutoLocation);
+      }
+      return autoLocs;
+    } else {
+      return locations.filter(loc => !loc.isAutoLocation);
+    }
+  }, [locations, locationMode]);
+
+  // Get current location - prioritize selected location, then filtered locations
+  const currentLocation = React.useMemo(() => {
+    // If there's a selected location and it matches the current mode, use it
+    if (selectedLocationId) {
+      const selected = locations.find(loc => loc.id === selectedLocationId);
+      if (selected) {
+        const matchesMode = (locationMode === 'auto' && selected.isAutoLocation) || 
+                          (locationMode === 'manual' && !selected.isAutoLocation);
+        if (matchesMode) {
+          return selected;
+        }
+      }
+    }
+    
+    // Otherwise, use the first location from filtered list
+    if (filteredLocations.length > 0) {
+      return filteredLocations[currentLocationIndex % filteredLocations.length];
+    }
+    
+    // Fallback to any location
+    if (locations.length > 0) {
+      return locations[currentLocationIndex % locations.length];
+    }
+    
+    return null;
+  }, [selectedLocationId, locations, locationMode, filteredLocations, currentLocationIndex]);
+
+  // Use current location, or fallback to default if no locations
+  const cityToFetch = currentLocation?.city || "Delhi, India";
 
   const { current, forecast, hourly, loading, error, retry } = useWeather(cityToFetch);
 
-  // City cycling logic
+  // Auto-select first location when locations are available and none is selected
   useEffect(() => {
-    if (locations.length <= 1 || isLoadingCycle) {
+    if (!isLoadingLocations && locations.length > 0 && !selectedLocationId) {
+      // Select the first location by default
+      const firstLocation = locations[0];
+      setSelectedLocationId(firstLocation.id);
+      setLocationMode(firstLocation.isAutoLocation ? 'auto' : 'manual');
+    }
+  }, [isLoadingLocations, locations, selectedLocationId, setSelectedLocationId, setLocationMode]);
+
+  // Auto-select first location when mode changes and selected location doesn't match
+  useEffect(() => {
+    if (filteredLocations.length > 0) {
+      const selected = locations.find(loc => loc.id === selectedLocationId);
+      const matchesMode = selected && (
+        (locationMode === 'auto' && selected.isAutoLocation) || 
+        (locationMode === 'manual' && !selected.isAutoLocation)
+      );
+      
+      if (!matchesMode) {
+        // Select first location in filtered list
+        const firstLocation = filteredLocations[0];
+        if (firstLocation && selectedLocationId !== firstLocation.id) {
+          setSelectedLocationId(firstLocation.id);
+        }
+      }
+    }
+  }, [locationMode, filteredLocations, selectedLocationId, locations, setSelectedLocationId]);
+
+  // Automatic location detection on app load when auto mode is enabled
+  useEffect(() => {
+    if (isLoadingLocations || isLoadingMode) return;
+
+    // Only auto-detect if:
+    // 1. Location mode is set to 'auto'
+    // 2. No auto location exists yet
+    // 3. User hasn't explicitly selected a location (or selected location is not auto)
+    if (locationMode === 'auto') {
+      const hasAutoLocation = locations.some(loc => loc.isAutoLocation);
+      const selected = locations.find(loc => loc.id === selectedLocationId);
+      const needsAutoLocation = !hasAutoLocation || (selected && !selected.isAutoLocation);
+
+      if (needsAutoLocation) {
+        // Attempt to get location automatically
+        getCurrentLocation()
+          .then(async (position) => {
+            const { latitude, longitude } = position.coords;
+            const geocodeResult = await reverseGeocode(latitude, longitude);
+
+            const autoLocation: LocationConfig = {
+              id: 'auto-location',
+              city: geocodeResult.city,
+              displayName: geocodeResult.displayName || 'Current Location',
+              isAutoLocation: true,
+            };
+
+            // Check if auto location already exists
+            const existingAuto = locations.find(loc => loc.isAutoLocation);
+            if (existingAuto) {
+              // Update existing auto location
+              const updatedLocations = locations.map(loc =>
+                loc.id === existingAuto.id ? autoLocation : loc
+              );
+              setLocations(updatedLocations);
+              setSelectedLocationId('auto-location');
+            } else {
+              // Add new auto location
+              const updatedLocations = [...locations, autoLocation];
+              setLocations(updatedLocations);
+              setSelectedLocationId('auto-location');
+            }
+          })
+          .catch((error) => {
+            // If location permission denied or failed, switch to manual mode if manual locations exist
+            console.log('Auto location detection failed:', error.message);
+            const manualLocations = locations.filter(loc => !loc.isAutoLocation);
+            if (manualLocations.length > 0) {
+              // Switch to manual mode and select first manual location
+              setLocationMode('manual');
+              setSelectedLocationId(manualLocations[0].id);
+            }
+          });
+      }
+    }
+  }, [isLoadingLocations, isLoadingMode, locationMode, locations, selectedLocationId, setSelectedLocationId, setLocations]);
+
+  // City cycling logic - only cycle through filtered locations
+  useEffect(() => {
+    if (filteredLocations.length <= 1 || isLoadingCycle) {
       if (cycleIntervalRef.current) {
         clearInterval(cycleIntervalRef.current);
         cycleIntervalRef.current = null;
@@ -145,17 +275,17 @@ export const Render: React.FC = () => {
       if (transitionStyle === 'fade') {
         setTransitioning(true);
         setTimeout(() => {
-          setCurrentLocationIndex((prev) => (prev + 1) % locations.length);
+          setCurrentLocationIndex((prev) => (prev + 1) % filteredLocations.length);
           setTransitioning(false);
         }, 500);
       } else if (transitionStyle === 'slide') {
         setTransitioning(true);
         setTimeout(() => {
-          setCurrentLocationIndex((prev) => (prev + 1) % locations.length);
+          setCurrentLocationIndex((prev) => (prev + 1) % filteredLocations.length);
           setTransitioning(false);
         }, 500);
       } else {
-        setCurrentLocationIndex((prev) => (prev + 1) % locations.length);
+        setCurrentLocationIndex((prev) => (prev + 1) % filteredLocations.length);
       }
     }, cycleDuration * 1000);
 
@@ -164,7 +294,7 @@ export const Render: React.FC = () => {
         clearInterval(cycleIntervalRef.current);
       }
     };
-  }, [locations.length, cycleDuration, transitionStyle, isLoadingCycle]);
+  }, [filteredLocations.length, cycleDuration, transitionStyle, isLoadingCycle]);
 
   // Map forecast range to view
   const view = forecastRange === '24H' ? '24H' : forecastRange === '3D' ? '3D' : '1W';
@@ -176,29 +306,8 @@ export const Render: React.FC = () => {
     }
   };
 
-  // Empty state
-  if (!isLoadingLocations && locations.length === 0 && locationMode === 'manual') {
-    return (
-      <div className="empty-state" style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        height: '100vh',
-        color: fontColor || '#ffffff',
-        textAlign: 'center',
-        padding: '2rem'
-      }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>No Location Configured</h2>
-        <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>
-          Please configure at least one location in settings to display weather information.
-        </p>
-        <p style={{ fontSize: '1rem', opacity: 0.6, marginTop: '1rem' }}>
-          Go to Settings → Location Configuration to add a city.
-        </p>
-      </div>
-    );
-  }
+  // Always show UI - use default location if no locations configured
+  // Empty state removed - app will show default "Delhi, India" location
 
   // Loading state
   if (loading) {
@@ -272,7 +381,7 @@ export const Render: React.FC = () => {
     <div className={`weather-container ${transitionClass}`}>
       <WeatherDashboard
         current={{
-          city: currentLocation?.displayName || current.CityLocalized,
+          city: currentLocation?.displayName ?? current.CityLocalized,
           State: current.State,
           date: formatDate(currentDate, timezone, dateFormat),
           time: formatTime(currentDate, timezone, timeFormat),

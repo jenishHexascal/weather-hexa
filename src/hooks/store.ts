@@ -11,6 +11,7 @@ export interface LocationConfig {
 
 export const useLocationsStoreState = createUseInstanceStoreState<LocationConfig[]>('locations', [])
 export const useLocationModeStoreState = createUseInstanceStoreState<'manual' | 'auto'>('location-mode', 'manual')
+export const useSelectedLocationIdStoreState = createUseInstanceStoreState<string | null>('selected-location-id', null)
 export const useCycleDurationStoreState = createUseInstanceStoreState<number>('cycle-duration', 30) // seconds
 export const useTransitionStyleStoreState = createUseInstanceStoreState<'fade' | 'slide' | 'instant'>('transition-style', 'fade')
 

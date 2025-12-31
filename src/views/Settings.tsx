@@ -10,6 +10,7 @@ import {
 import {
   useLocationsStoreState,
   useLocationModeStoreState,
+  useSelectedLocationIdStoreState,
   useCycleDurationStoreState,
   useTransitionStyleStoreState,
   useForecastRangeStoreState,
@@ -23,10 +24,12 @@ import {
   useDateFormatStoreState,
   type LocationConfig,
 } from '../hooks/store';
+import { getCurrentLocation, reverseGeocode } from '../utils/geolocation';
 
 export function Settings() {
   const [isLoadingLocations, locations, setLocations] = useLocationsStoreState();
   const [isLoadingMode, locationMode, setLocationMode] = useLocationModeStoreState();
+  const [isLoadingSelected, selectedLocationId, setSelectedLocationId] = useSelectedLocationIdStoreState();
   const [isLoadingCycle, cycleDuration, setCycleDuration] = useCycleDurationStoreState();
   const [isLoadingTransition, transitionStyle, setTransitionStyle] = useTransitionStyleStoreState();
   const [isLoadingForecast, forecastRange, setForecastRange] = useForecastRangeStoreState();
@@ -53,6 +56,8 @@ export function Settings() {
     };
     
     setLocations([...locations, newLocation]);
+    setSelectedLocationId(newLocation.id);
+    setLocationMode('manual');
     setNewCityInput('');
     setNewDisplayNameInput('');
   };
@@ -66,59 +71,61 @@ export function Settings() {
   };
 
   const enableAutoLocation = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          // Reverse geocoding would be done here, but for now we'll use coordinates
-          const autoLocation: LocationConfig = {
-            id: 'auto-location',
-            city: `${latitude},${longitude}`,
-            displayName: 'Current Location',
-            isAutoLocation: true,
-          };
-          
-          // Check if auto location already exists
-          const existingAuto = locations.find(loc => loc.isAutoLocation);
-          if (existingAuto) {
-            updateLocation(existingAuto.id, autoLocation);
-          } else {
-            setLocations([...locations, autoLocation]);
-          }
-          setLocationMode('auto');
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          alert('Unable to get your location. Please check your browser permissions.');
-        }
-      );
-    } else {
-      alert('Geolocation is not supported by your browser.');
+    try {
+      // Get current position
+      const position = await getCurrentLocation();
+      const { latitude, longitude } = position.coords;
+
+      // Convert coordinates to city name using reverse geocoding
+      const geocodeResult = await reverseGeocode(latitude, longitude);
+
+      const autoLocation: LocationConfig = {
+        id: 'auto-location',
+        city: geocodeResult.city,
+        displayName: geocodeResult.displayName || 'Current Location',
+        isAutoLocation: true,
+      };
+
+      // Check if auto location already exists
+      const existingAuto = locations.find(loc => loc.isAutoLocation);
+      if (existingAuto) {
+        updateLocation(existingAuto.id, autoLocation);
+        setSelectedLocationId('auto-location');
+      } else {
+        setLocations([...locations, autoLocation]);
+        setSelectedLocationId('auto-location');
+      }
+      setLocationMode('auto');
+    } catch (error) {
+      console.error('Auto location error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get location.';
+      alert(errorMessage);
     }
   };
 
   return (
     <SettingsContainer>
       {/* Location Configuration */}
-      <SettingsField>
-        <SettingsLabel>Location Mode</SettingsLabel>
-        <SettingsInputFrame>
-          <select
-            value={locationMode}
-            onChange={(e) => setLocationMode(e.target.value as 'manual' | 'auto')}
-            disabled={isLoadingMode}
-          >
-            <option value="manual">Manual Entry</option>
-            <option value="auto">Automatic (Geolocation)</option>
-          </select>
-        </SettingsInputFrame>
-      </SettingsField>
+        <SettingsField>
+          <SettingsLabel>Location Mode</SettingsLabel>
+          <SettingsInputFrame>
+            <select
+              className="select"
+              value={locationMode}
+              onChange={(e) => setLocationMode(e.target.value as 'manual' | 'auto')}
+              disabled={isLoadingMode}
+            >
+              <option value="manual">Manual Entry</option>
+              <option value="auto">Automatic (Geolocation)</option>
+            </select>
+          </SettingsInputFrame>
+        </SettingsField>
 
       {locationMode === 'auto' && (
         <SettingsField>
           <SettingsLabel>Enable Auto Location</SettingsLabel>
           <SettingsInputFrame>
-            <button onClick={enableAutoLocation} type="button">
+            <button onClick={enableAutoLocation} type="button" className="btn">
               Detect Current Location
             </button>
           </SettingsInputFrame>
@@ -132,6 +139,7 @@ export function Settings() {
             <SettingsInputFrame>
               <input
                 type="text"
+                className="input"
                 placeholder="e.g., Vancouver, BC"
                 value={newCityInput}
                 onChange={(e) => setNewCityInput(e.target.value)}
@@ -145,6 +153,7 @@ export function Settings() {
             <SettingsInputFrame>
               <input
                 type="text"
+                className="input"
                 placeholder="Custom display name"
                 value={newDisplayNameInput}
                 onChange={(e) => setNewDisplayNameInput(e.target.value)}
@@ -156,7 +165,7 @@ export function Settings() {
           <SettingsField>
             <SettingsLabel>Add Location</SettingsLabel>
             <SettingsInputFrame>
-              <button onClick={addLocation} type="button">
+              <button onClick={addLocation} type="button" className="btn">
                 Add
               </button>
             </SettingsInputFrame>
@@ -171,26 +180,61 @@ export function Settings() {
         <>
           <SettingsField>
             <SettingsLabel>Configured Locations ({locations.length})</SettingsLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {locations.map((loc) => (
-                <div key={loc.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px' }}>
-                  <div style={{ flex: 1 }}>
-                    <div><strong>{loc.displayName || loc.city}</strong></div>
-                    {loc.displayName && <div style={{ fontSize: '0.875rem', opacity: 0.7 }}>{loc.city}</div>}
-                    {loc.isAutoLocation && <div style={{ fontSize: '0.75rem', opacity: 0.6 }}>Auto Location</div>}
+            <div className="flex flex-col gap-2">
+              {locations.map((loc) => {
+                const isSelected = selectedLocationId === loc.id;
+                const matchesMode = (locationMode === 'auto' && loc.isAutoLocation) || (locationMode === 'manual' && !loc.isAutoLocation);
+                return (
+                  <div 
+                    key={loc.id} 
+                    onClick={() => {
+                      setSelectedLocationId(loc.id);
+                      setLocationMode(loc.isAutoLocation ? 'auto' : 'manual');
+                    }}
+                    className={`card flex gap-2 items-center cursor-pointer transition-base ${isSelected ? 'border-2' : ''}`}
+                    style={{ 
+                      borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
+                      backgroundColor: isSelected ? 'rgba(32, 96, 201, 0.1)' : 'transparent',
+                    }}
+                  >
+                    <div className="flex-1">
+                      <div className="font-semibold" style={{ fontSize: '1.4rem' }}>{loc.displayName || loc.city} {isSelected && '✓'}</div>
+                      {loc.displayName && <div className="text-sm text-muted" style={{ fontSize: '1.2rem' }}>{loc.city}</div>}
+                      {loc.isAutoLocation && <div className="text-xs text-muted" style={{ fontSize: '1rem' }}>Auto Location</div>}
+                      {!matchesMode && <div className="text-xs" style={{ color: 'var(--color-warning)', fontSize: '1rem' }}>Not in current mode</div>}
+                    </div>
+                    <input
+                      type="text"
+                      className="input flex-1"
+                      placeholder="Display name"
+                      value={loc.displayName || ''}
+                      onChange={(e) => updateLocation(loc.id, { displayName: e.target.value || undefined })}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ fontSize: '1.4rem' }}
+                    />
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeLocation(loc.id);
+                        if (selectedLocationId === loc.id) {
+                          const remaining = locations.filter(l => l.id !== loc.id);
+                          if (remaining.length > 0) {
+                            setSelectedLocationId(remaining[0].id);
+                            setLocationMode(remaining[0].isAutoLocation ? 'auto' : 'manual');
+                          } else {
+                            setSelectedLocationId(null);
+                          }
+                        }
+                      }} 
+                      type="button" 
+                      className="btn btn--small btn--danger"
+                      style={{ fontSize: '1.2rem' }}
+                    >
+                      Remove
+                    </button>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Display name"
-                    value={loc.displayName || ''}
-                    onChange={(e) => updateLocation(loc.id, { displayName: e.target.value || undefined })}
-                    style={{ flex: 1, padding: '0.25rem' }}
-                  />
-                  <button onClick={() => removeLocation(loc.id)} type="button" style={{ padding: '0.25rem 0.5rem' }}>
-                    Remove
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </SettingsField>
           <SettingsDivider />
@@ -220,6 +264,7 @@ export function Settings() {
             <SettingsLabel>Transition Style</SettingsLabel>
             <SettingsInputFrame>
               <select
+                className="select"
                 value={transitionStyle}
                 onChange={(e) => setTransitionStyle(e.target.value as 'fade' | 'slide' | 'instant')}
                 disabled={isLoadingTransition}
@@ -239,6 +284,7 @@ export function Settings() {
         <SettingsLabel>Forecast Time Range</SettingsLabel>
         <SettingsInputFrame>
           <select
+            className="select"
             value={forecastRange}
             onChange={(e) => setForecastRange(e.target.value as '24H' | '3D' | '1W')}
             disabled={isLoadingForecast}
@@ -257,6 +303,7 @@ export function Settings() {
         <SettingsLabel>Background Type</SettingsLabel>
         <SettingsInputFrame>
           <select
+            className="select"
             value={backgroundType}
             onChange={(e) => setBackgroundType(e.target.value as 'solid' | 'weather' | 'image')}
             disabled={isLoadingBgType}
@@ -272,19 +319,24 @@ export function Settings() {
         <SettingsField>
           <SettingsLabel>Background Color</SettingsLabel>
           <SettingsInputFrame>
-            <input
-              type="color"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-              disabled={isLoadingBgColor}
-            />
-            <input
-              type="text"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-              disabled={isLoadingBgColor}
-              style={{ marginLeft: '0.5rem', flex: 1 }}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                className="input"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+                disabled={isLoadingBgColor}
+                style={{ width: '3rem', height: '2.5rem', padding: '0'}}
+              />
+              <input
+                type="text"
+                className="input flex-1"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+                disabled={isLoadingBgColor}
+                style={{ fontSize: '1.4rem' }}
+              />
+            </div>
           </SettingsInputFrame>
         </SettingsField>
       )}
@@ -295,6 +347,7 @@ export function Settings() {
           <SettingsInputFrame>
             <input
               type="text"
+              className="input"
               placeholder="https://example.com/image.jpg"
               value={backgroundImage}
               onChange={(e) => setBackgroundImage(e.target.value)}
@@ -323,19 +376,24 @@ export function Settings() {
       <SettingsField>
         <SettingsLabel>Font Color</SettingsLabel>
         <SettingsInputFrame>
-          <input
-            type="color"
-            value={fontColor}
-            onChange={(e) => setFontColor(e.target.value)}
-            disabled={isLoadingFontColor}
-          />
-          <input
-            type="text"
-            value={fontColor}
-            onChange={(e) => setFontColor(e.target.value)}
-            disabled={isLoadingFontColor}
-            style={{ marginLeft: '0.5rem', flex: 1 }}
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              className="input"
+              value={fontColor}
+              onChange={(e) => setFontColor(e.target.value)}
+              disabled={isLoadingFontColor}
+              style={{ width: '3rem', height: '2.5rem', padding: '0' }}
+            />
+            <input
+              type="text"
+              className="input flex-1"
+              value={fontColor}
+              onChange={(e) => setFontColor(e.target.value)}
+              disabled={isLoadingFontColor}
+              style={{ fontSize: '1.4rem' }}
+            />
+          </div>
         </SettingsInputFrame>
       </SettingsField>
 
@@ -343,6 +401,7 @@ export function Settings() {
         <SettingsLabel>Temperature Unit</SettingsLabel>
         <SettingsInputFrame>
           <select
+            className="select"
             value={temperatureUnit}
             onChange={(e) => setTemperatureUnit(e.target.value as 'C' | 'F')}
             disabled={isLoadingUnit}
@@ -360,6 +419,7 @@ export function Settings() {
         <SettingsLabel>Time Format</SettingsLabel>
         <SettingsInputFrame>
           <select
+            className="select"
             value={timeFormat}
             onChange={(e) => setTimeFormat(e.target.value as '12h' | '24h')}
             disabled={isLoadingTimeFormat}
@@ -374,6 +434,7 @@ export function Settings() {
         <SettingsLabel>Date Format</SettingsLabel>
         <SettingsInputFrame>
           <select
+            className="select"
             value={dateFormat}
             onChange={(e) => setDateFormat(e.target.value as 'MMM DD, YYYY' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD')}
             disabled={isLoadingDateFormat}

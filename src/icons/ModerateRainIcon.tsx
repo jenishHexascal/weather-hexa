@@ -1,135 +1,41 @@
-type ModeraterainIconProps = {
+type ModerateRainIconProps = {
     size?: number;
     color?: string;
   };
   
-  export const ModeraterainIcon: React.FC<ModeraterainIconProps> = ({
+  export const ModerateRainIcon: React.FC<ModerateRainIconProps> = ({
     size = 24,
     color = "currentColor",
   }) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 64"
-      width={size}
-      height={size}
-    >
-      <defs>
-        <linearGradient
-          id="cloudGradient"
-          x1="22.56"
-          y1="21.96"
-          x2="39.2"
-          y2="50.8"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="#f3f7fe" />
-          <stop offset="0.45" stopColor="#f3f7fe" />
-          <stop offset="1" stopColor="#deeafb" />
-        </linearGradient>
+    <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64">
+	<defs>
+		<linearGradient id="a" x1="22.56" y1="21.96" x2="39.2" y2="50.8" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#f3f7fe"/>
+			<stop offset="0.45" stop-color="#f3f7fe"/>
+			<stop offset="1" stop-color="#deeafb"/>
+		</linearGradient>
+		<linearGradient id="b" x1="22.53" y1="42.95" x2="25.47" y2="48.05" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#4286ee"/>
+			<stop offset="0.45" stop-color="#4286ee"/>
+			<stop offset="1" stop-color="#0950bc"/>
+		</linearGradient>
+		<linearGradient id="c" x1="29.53" y1="42.95" x2="32.47" y2="48.05" xlinkHref="#b"/>
+		<linearGradient id="d" x1="36.53" y1="42.95" x2="39.47" y2="48.05" xlinkHref="#b"/>
+	</defs>
+	<path d="M46.5,31.5l-.32,0a10.49,10.49,0,0,0-19.11-8,7,7,0,0,0-10.57,6,7.21,7.21,0,0,0,.1,1.14A7.5,7.5,0,0,0,18,45.5a4.19,4.19,0,0,0,.5,0v0h28a7,7,0,0,0,0-14Z" stroke="#e6effc" stroke-miterlimit="10" stroke-width="0.5" fill="url(#a)"/>
+	<line x1="24.39" y1="43.03" x2="23.61" y2="47.97" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" stroke="url(#b)">
+		<animateTransform attributeName="transform" type="translate" values="1 -5; -2 10" dur="0.7s" repeatCount="indefinite"/>
+		<animate attributeName="opacity" values="0;1;1;0" dur="0.7s" repeatCount="indefinite"/>
+	</line>
+	<line x1="31.39" y1="43.03" x2="30.61" y2="47.97" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" stroke="url(#c)">
+		<animateTransform attributeName="transform" begin="-0.4s" type="translate" values="1 -5; -2 10" dur="0.7s" repeatCount="indefinite"/>
+		<animate attributeName="opacity" begin="-0.4s" values="0;1;1;0" dur="0.7s" repeatCount="indefinite"/>
+	</line>
+	<line x1="38.39" y1="43.03" x2="37.61" y2="47.97" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" stroke="url(#d)">
+		<animateTransform attributeName="transform" begin="-0.2s" type="translate" values="1 -5; -2 10" dur="0.7s" repeatCount="indefinite"/>
+		<animate attributeName="opacity" begin="-0.2s" values="0;1;1;0" dur="0.7s" repeatCount="indefinite"/>
+	</line>
+</svg>
 
-        <linearGradient
-          id="rainGradient"
-          x1="23.31"
-          y1="44.3"
-          x2="24.69"
-          y2="46.7"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="#4286ee" />
-          <stop offset="0.45" stopColor="#4286ee" />
-          <stop offset="1" stopColor="#0950bc" />
-        </linearGradient>
-
-        <linearGradient id="rainGradient2" xlinkHref="#rainGradient" />
-        <linearGradient id="rainGradient3" xlinkHref="#rainGradient" />
-      </defs>
-
-      {/* Cloud */}
-      <path
-        d="M46.5,31.5l-.32,0a10.49,10.49,0,0,0-19.11-8,7,7,0,0,0-10.57,6,7.21,7.21,0,0,0,.1,1.14A7.5,7.5,0,0,0,18,45.5a4.19,4.19,0,0,0,.5,0v0h28a7,7,0,0,0,0-14Z"
-        fill="url(#cloudGradient)"
-        stroke="#e6effc"
-        strokeWidth="0.5"
-        strokeMiterlimit="10"
-      />
-
-      {/* Rain drop 1 */}
-      <line
-        x1="24.08"
-        y1="45.01"
-        x2="23.92"
-        y2="45.99"
-        stroke="url(#rainGradient)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="1 -5; -2 10"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          values="0;1;1;0"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-      </line>
-
-      {/* Rain drop 2 */}
-      <line
-        x1="31.08"
-        y1="45.01"
-        x2="30.92"
-        y2="45.99"
-        stroke="url(#rainGradient2)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          begin="-0.5s"
-          values="1 -5; -2 10"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          begin="-0.5s"
-          values="0;1;1;0"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-      </line>
-
-      {/* Rain drop 3 */}
-      <line
-        x1="38.08"
-        y1="45.01"
-        x2="37.92"
-        y2="45.99"
-        stroke="url(#rainGradient3)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          begin="-1s"
-          values="1 -5; -2 10"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          begin="-1s"
-          values="0;1;1;0"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-      </line>
-    </svg>
   );
+  

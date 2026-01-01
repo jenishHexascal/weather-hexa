@@ -215,8 +215,8 @@ export const WeatherDashboard: React.FC<Props> = ({
               <span className="current-date-text">| {current.date}</span>
             </div>
           </div>
-          {/* <div className="greeting">{getGreeting(current.time)}</div> */}
-          <div className="time-group">
+          <div className="time-group flex items-center gap-3">
+          <div className="greeting">{getGreeting(current.time)}</div> <span className="text-3xl">|</span>
             <div className="time">{current.time}</div>
           </div>
         </header>

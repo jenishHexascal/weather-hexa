@@ -50,13 +50,12 @@
 .greeting {
   font-size: 2rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.01em; 
 }
 /* ===== HERO SECTION (Larger Metrics) ===== */
 .hero-section {
   flex: 1.1;
   display: grid;
-  /* Two columns: Large Left for Temp, Right for Metrics */
   grid-template-columns: 1.5fr 1fr; 
   gap: 2rem;
   align-items: center;
@@ -64,7 +63,7 @@
 }
 .metrics-container-right {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two side-by-side columns */
+  grid-template-columns: 1fr 1fr; 
   gap: 1.5rem;
   width: 100%;
 }
@@ -115,7 +114,7 @@
 /* ===== FORECAST (Scrollable) ===== */
 .forecast-section {
   padding: 1.5rem;
-  overflow: hidden;/* Keep container fixed */
+  overflow: hidden;
 }
 
 .forecast-header {
@@ -147,7 +146,7 @@
 .forecast-card {
   width: auto;
   min-width: 15rem;
-  flex: 0 0 15rem; /* Fixed width 160px */
+  flex: 0 0 15rem; 
   background: rgba(255, 255, 255, 0.05);
   border: 0.0625rem solid rgba(255, 255, 255, 0.08);
   border-radius: 1.5rem;
@@ -185,13 +184,13 @@
 
   /* Ensure the stats columns also go horizontal to save vertical space */
   .hero-left, .hero-right {
-    display: contents; /* This ignores the div wrappers and lets cards join the 4-column grid */
+    display: contents; 
   }
 
   /* Shrink metrics to fit on one line */
   .metric-card {
     padding: 1.5vh 1vw !important;
-    min-width: 0; /* Allows card to shrink below content size */
+    min-width: 0; 
   }
 
   .metric-label {
@@ -201,7 +200,7 @@
 
   .metric-value {
     font-size: 3vmin !important;
-    white-space: nowrap; /* Prevents text from breaking into two lines */
+    white-space: nowrap; 
   }
 
   /* Scale down the center temperature centerpiece */
@@ -235,22 +234,22 @@
 /* Responsive Fix for "Single Line" on Mobile */
 @media (max-width: 600px) {
   .main-display {
-    flex-direction: row !important;/* Force single line */
+    flex-direction: row !important;
     gap: 0.625rem;
     padding: 0.5rem 0;
   }
   
   .main-temp-value {
-    font-size: 6rem !important;/* Scale down temp */
+    font-size: 6rem !important;
   }
   
   .weather-icon-main svg {
-    width: 3.75rem !important; /* 60px */
+    width: 3.75rem !important; 
     height: 3.75rem !important;
   }
   
   .condition-text {
-    display: none; /* Hide long text on tiny screens to save space */
+    display: none; 
   }
 
   .hero-section {
@@ -268,17 +267,16 @@
 .marquee-container {
   display: flex;
   gap: 1.5vw;
-  width: max-content; /* Critical: allows content to be wider than the screen */
+  width: max-content; 
   will-change: transform;
 }
 
 .marquee-active {
-  /* Use the variable with a fallback of 30s */
   animation: scroll-left var(--MarqueeDuration, 30s) linear infinite;
 }
 
 .marquee-active:hover {
-  animation-play-state: paused; /* User can stop it to read */
+  animation-play-state: paused;
 }
 
 @keyframes scroll-left {
@@ -293,5 +291,5 @@
 
 /* Ensure cards stay a fixed size and don't shrink */
 .marquee-active .forecast-card {
-  flex: 0 0 160px; /* Adjust width to match your design */
+  flex: 0 0 160px; 
 }

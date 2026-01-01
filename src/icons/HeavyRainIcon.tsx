@@ -1,9 +1,9 @@
-type StromIconProps = {
+type HeavyRainIconProps = {
     size?: number;
     color?: string;
   };
   
-  export const StromIcon: React.FC<StromIconProps> = ({
+  export const HeavyRainIcon: React.FC<HeavyRainIconProps> = ({
     size = 24,
     color = "currentColor",
   }) => (

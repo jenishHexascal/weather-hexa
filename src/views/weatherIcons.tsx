@@ -1,11 +1,12 @@
 import React from "react";
-import { StromIcon } from "../icons/Strom";
+import { HeavyRainIcon } from "../icons/HeavyRainIcon";
 import { OvercastIcon } from "../icons/OvercastCloudIcon";
-import { HeavyRainIcon } from "../icons/HeadyRain";
-import { ModeraterainIcon } from "../icons/ModerateRainIcon";
+import { ModerateRainIcon } from "../icons/ModerateRainIcon";
+import { LightRainIcon } from "../icons/LightRainIcon";
 import { SnowIcon } from "../icons/SnowIcon";
 import { BrokenCastIcon } from "../icons/BrokenCast";
 import { ClearSkyIcon } from "../icons/ClearSkyIcon";
+import { StromIcon } from "../icons/StromIcon";
 
 type WeatherIconProps = {
   size?: number;
@@ -30,11 +31,11 @@ export const weatherIcons: Record<
   ),
   "18": ({ size = 100 } = {}) => (
     // Light rain / Partly cloudy with rain
-    <StromIcon size={size} />
+    <LightRainIcon size={size} />
   ),
   "19": ({ size = 100 } = {}) => (
     // Moderate rain / Cloudy
-    <ModeraterainIcon size={size}/>
+    <ModerateRainIcon size={size} />
   ),
   "20": ({ size = 100 } = {}) => (
     // Heavy rain
@@ -46,6 +47,6 @@ export const weatherIcons: Record<
   ),
   "13": ({ size = 100 } = {}) => (
     // Snow
-   <SnowIcon size={size}/>
+    <SnowIcon size={size} />
   ),
 };

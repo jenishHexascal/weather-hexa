@@ -3,6 +3,8 @@ import { weatherIcons } from "./weatherIcons";
 import { LocationIcon } from "../icons/LocationIcon";
 import { WindIcon } from "../icons/WindIcon";
 import { HumidityIcon } from "../icons/HumidityIcon";
+import { PressureIcon } from "../icons/PressureIcon";
+import { RainIcon } from "../icons/RainIcon";
 
 interface CurrentWeather {
   city: string;
@@ -128,8 +130,28 @@ export const WeatherDashboard: React.FC<Props> = ({
   };
 
   const getGreeting = (time: string): string => {
-    // expected format: "HH:MM" (24 hour)
-    const hour = parseInt(time.split(":")[0], 10);
+    let hour = 0;
+
+    // Check if time contains AM/PM (12-hour format)
+    if (
+      time.toLowerCase().includes("am") ||
+      time.toLowerCase().includes("pm")
+    ) {
+      const [timePart, modifier] = time.split(" ");
+      let [h] = timePart.split(":");
+      hour = parseInt(h, 10);
+
+      if (modifier.toLowerCase() === "pm" && hour !== 12) {
+        hour += 12;
+      }
+      if (modifier.toLowerCase() === "am" && hour === 12) {
+        hour = 0;
+      }
+    }
+    // Otherwise assume 24-hour format
+    else {
+      hour = parseInt(time.split(":")[0], 10);
+    }
 
     if (hour >= 5 && hour < 12) return "Good Morning";
     if (hour >= 12 && hour < 17) return "Good Afternoon";
@@ -170,7 +192,7 @@ export const WeatherDashboard: React.FC<Props> = ({
           <span className="current-date">{current.date}</span>
 
           <div className="date-time">
-             <div className="greeting">{getGreeting(current.time)}</div>
+            <div className="greeting">{getGreeting(current.time)}</div>
             <span className="time">{current.time}</span>
           </div>
         </div>
@@ -202,14 +224,16 @@ export const WeatherDashboard: React.FC<Props> = ({
                 <div className="metric-inline">
                   <WindIcon size={36} />
                   <span className="metric-value-inline">
-                    {current.WindSpeed} <span className="metric-unit-inline">km/h</span>
+                    {current.WindSpeed}{" "}
+                    <span className="metric-unit-inline">km/h</span>
                   </span>
                 </div>
                 {current.Humidity !== undefined && (
                   <div className="metric-inline">
                     <HumidityIcon size={36} />
                     <span className="metric-value-inline">
-                      {current.Humidity} <span className="metric-unit-inline">%</span>
+                      {current.Humidity}{" "}
+                      <span className="metric-unit-inline">%</span>
                     </span>
                   </div>
                 )}
@@ -251,7 +275,8 @@ export const WeatherDashboard: React.FC<Props> = ({
             </div> */}
 
             <div className="metric">
-              <span className="label">Pressure</span>
+              {/* <span className="label">Pressure</span> */}
+              <PressureIcon size={36} />
               <span className="value">
                 {current.Pressure}
                 <span className="metric-unit">hPa</span>
@@ -259,7 +284,8 @@ export const WeatherDashboard: React.FC<Props> = ({
             </div>
 
             <div className="metric">
-              <span className="label">Precipitation</span>
+              {/* <span className="label">Precipitation</span> */}
+              <RainIcon size={36} />
               <span className="value">
                 {current.Precip}
                 <span className="metric-unit">mm</span>
@@ -299,14 +325,15 @@ export const WeatherDashboard: React.FC<Props> = ({
                 </p>
               )}
               {view !== "24H" && (
-                <>
+                <div className="flex items-center justify-center">
                   <p className="temp-max">
                     {convertTemp(day.max, temperatureUnit)}°{temperatureUnit}
                   </p>
+                  <span className="temp-divider">-</span>
                   <p className="temp-min">
                     {convertTemp(day.min, temperatureUnit)}°{temperatureUnit}
                   </p>
-                </>
+                </div>
               )}
             </div>
           ))}

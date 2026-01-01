@@ -279,7 +279,7 @@ export const WeatherDashboard: React.FC<Props> = ({
                     padding: "0.3125rem 0.9375rem",
                     borderRadius: "1.25rem",
                     cursor: "pointer",
-                    fontSize: "1.8vmin",
+                    fontSize: "2vmin",
                     fontWeight: "bold",
                     transition: "0.3s",
                   }}
@@ -302,14 +302,14 @@ export const WeatherDashboard: React.FC<Props> = ({
               {displayForecast.map((day, i) => (
                 <div key={`${day.day}-${i}`} className="forecast-card">
                   <span className="forecast-day">{day.day}</span>
-                  <span className="forecast-condition" style={{fontSize: '1.2vmin', opacity: 0.7}}>
+                  <span className="forecast-condition" style={{fontSize: '2.3vmin'}}>
                     {day.condition}
                   </span>
-                  {weatherIcons[day.code]?.({ size: 40 })}
+                  {weatherIcons[day.code]?.({ size: 70 })}
                   <div className="forecast-temps">
                     <span>{convertTemp(view === "24H" ? day.temp : day.max, temperatureUnit)}°{temperatureUnit}</span>
                     {view !== "24H" && (
-                      <span style={{ opacity: 0.4, fontSize: '0.6em', marginLeft: '0.375rem' }}>
+                      <span style={{ opacity: 0.4, fontSize: '0.8em', marginLeft: '0.375rem' }}>
                         {convertTemp(day.min, temperatureUnit)}°{temperatureUnit}
                       </span>
                     )}

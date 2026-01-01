@@ -76,7 +76,7 @@
 
 .main-display { text-align: center; }
 .main-temp-value {
-  font-size: 14.85rem; 
+  font-size: 10rem; 
   font-weight: 400;
   line-height: 0.9;
   text-shadow: 0 0 3.125rem rgba(255,255,255,0.15);
@@ -102,7 +102,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.125rem;
 }
@@ -125,7 +125,9 @@
 }
 
 .forecast-card {
-  flex: 0 0 10rem; /* Fixed width 160px */
+  width: auto;
+  min-width: 15rem;
+  flex: 0 0 15rem; /* Fixed width 160px */
   background: rgba(255, 255, 255, 0.05);
   border: 0.0625rem solid rgba(255, 255, 255, 0.08);
   border-radius: 1.5rem;
@@ -136,12 +138,12 @@
   gap: 1rem;
 }
 
-.forecast-day { font-size: 1.3rem; font-weight: 700; color: #cbd5e1; }
-.forecast-temps { font-size: 1.5rem; font-weight: 800; }
+.forecast-day { font-size: 1.8rem; font-weight: 800; color: #cbd5e1; }
+.forecast-temps { font-size: 1.8rem; font-weight: 600; }
 
 @media (max-width: 1024px) {
   .hero-section { grid-template-columns: 1fr; padding-bottom: 1.5rem;padding-top: 1.5rem;}
-  .forecast-card { flex: 0 0 8.125rem; } /* ~130px */
+  .forecast-card { width: auto; flex: 0 0 20rem; align-items: center; justify-items: center; } /* ~130px */
 }
 /* Media handling for background video/image */
 .bg-media-container {

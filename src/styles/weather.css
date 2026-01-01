@@ -1,8 +1,8 @@
-/* ===== SPATIAL GLASS DASHBOARD (ENHANCED) ===== */
+/* ===== SPATIAL GLASS DASHBOARD (REM VERSION) ===== */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-blur: blur(16px);
+  --glass-blur: blur(1rem);
   --accent-glow: radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.18) 0%, transparent 75%);
 }
 
@@ -13,128 +13,135 @@
 .weather-dashboard {
   width: 100vw;
   height: 100vh;
-  padding: 2.5vh 2.5vw;
+  padding: 1.5rem; 
   display: flex;
   flex-direction: column;
-  gap: 2.5vh;
+  gap: 1.5rem;
   font-family: 'Inter', system-ui, sans-serif;
   color: #fff;
   background: 
     var(--accent-glow),
-    radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(255, 0, 128, 0.08) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.12) 0, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 0, 128, 0.08) 0, transparent 50%);
 }
 
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 32px;
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  border: 0.0625rem solid var(--glass-border);
+  border-radius: 2rem;
+  box-shadow: 0 0.75rem 2.5rem 0 rgba(0, 0, 0, 0.4);
 }
 
-/* ===== TOP BAR (Increased Font) ===== */
+/* ===== TOP BAR ===== */
 .weather-top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2vh 3vw;
+  padding: 1rem 2rem;
 }
 
-.city-name { font-size: 5vmin; font-weight: 800; letter-spacing: -1px; }
-.current-date-text { font-size: 2.2vmin; opacity: 0.6; }
-.time { font-size: 6vmin; font-weight: 200; font-variant-numeric: tabular-nums; }
+.city-name { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.06rem; }
+.current-date-text { font-size: 1rem; opacity: 0.6; }
+.time { font-size: 3rem; font-weight: 200; font-variant-numeric: tabular-nums; }
 
 /* ===== HERO SECTION (Larger Metrics) ===== */
 .hero-section {
   flex: 1.2; /* Give more space to central area */
   display: grid;
   grid-template-columns: 1fr 1.8fr 1fr;
-  gap: 2.5vw;
+  gap: 1.5rem;
   align-items: center;
+  padding-bottom: 1.5rem;
 }
 
 .hero-left, .hero-right {
   display: flex;
   flex-direction: column;
-  gap: 2.5vh;
+  gap: 1.5rem;
 }
 
 .metric-card {
-  padding: 3vh 2.5vw;
+  padding: 1.5rem 1.25rem;
 }
 
-.metric-label { font-size: 1.8vmin; text-transform: uppercase; color: #94a3b8; letter-spacing: 2px; }
-.metric-value { font-size: 4.5vmin; font-weight: 800; margin-top: 8px; display: block; }
+.metric-label { font-size: 1.5rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.125rem; }
+.metric-value { font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem; display: block; }
+.metric-unit {
+  font-size: 1.5rem;
+  opacity: 0.85;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
 
 .main-display { text-align: center; }
 .main-temp-value {
-  font-size: 22vmin; /* Massive center temp */
+  font-size: 14.85rem; 
   font-weight: 400;
-  line-height: 0.8;
-  text-shadow: 0 0 50px rgba(255,255,255,0.15);
+  line-height: 0.9;
+  text-shadow: 0 0 3.125rem rgba(255,255,255,0.15);
 }
 
 
 .condition-text {
-  font-size: 3vmin;
-  letter-spacing: 12px;
+  font-size: 1.5rem;
+  letter-spacing: 0.75rem;
   text-transform: uppercase;
-  margin-top: 2.5vh;
+  margin-top: 1.5rem;
   font-weight: 400;
   opacity: 0.8;
 }
 
 /* ===== FORECAST (Scrollable) ===== */
 .forecast-section {
-  padding: 2.5vh 2.5vw;
-  overflow: hidden; /* Keep container fixed */
+  padding: 1.5rem;
+  overflow: hidden;/* Keep container fixed */
 }
 
 .forecast-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2vh;
-  font-size: 2vmin;
+  margin-bottom: 1rem;
+  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 0.125rem;
 }
 
 .forecast-row {
   display: flex;
-  gap: 1.5vw;
-  overflow-x: auto; /* Enable horizontal scroll */
-  padding-bottom: 1.5vh;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.2) transparent;
 }
 
 /* Custom Scrollbar for Chrome/Safari */
-.forecast-row::-webkit-scrollbar { height: 6px; }
+.forecast-row::-webkit-scrollbar { height: 0.375rem; }
 .forecast-row::-webkit-scrollbar-track { background: transparent; }
 .forecast-row::-webkit-scrollbar-thumb { 
   background: rgba(255,255,255,0.15); 
-  border-radius: 10px; 
+  border-radius: 0.625rem; 
 }
 
 .forecast-card {
-  flex: 0 0 160px; /* Fixed width for cards to force overflow */
+  flex: 0 0 10rem; /* Fixed width 160px */
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  padding: 2.5vh 1.5vh;
+  border: 0.0625rem solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  padding: 1.25rem 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2vh;
+  gap: 1rem;
 }
 
-.forecast-day { font-size: 2.2vmin; font-weight: 600; color: #cbd5e1; }
-.forecast-temps { font-size: 3vmin; font-weight: 800; }
+.forecast-day { font-size: 1.3rem; font-weight: 700; color: #cbd5e1; }
+.forecast-temps { font-size: 1.5rem; font-weight: 800; }
 
 @media (max-width: 1024px) {
-  .hero-section { grid-template-columns: 1fr; }
-  .forecast-card { flex: 0 0 130px; }
+  .hero-section { grid-template-columns: 1fr; padding-bottom: 1.5rem;padding-top: 1.5rem;}
+  .forecast-card { flex: 0 0 8.125rem; } /* ~130px */
 }
 /* Media handling for background video/image */
 .bg-media-container {
@@ -156,18 +163,18 @@
 /* Responsive Fix for "Single Line" on Mobile */
 @media (max-width: 600px) {
   .main-display {
-    flex-direction: row !important; /* Force single line */
-    gap: 10px;
-    padding: 1vh 0;
+    flex-direction: row !important;/* Force single line */
+    gap: 0.625rem;
+    padding: 0.5rem 0;
   }
   
   .main-temp-value {
-    font-size: 15vw !important; /* Scale down temp */
+    font-size: 6rem !important;/* Scale down temp */
   }
   
   .weather-icon-main svg {
-    width: 60px !important;
-    height: 60px !important;
+    width: 3.75rem !important; /* 60px */
+    height: 3.75rem !important;
   }
   
   .condition-text {

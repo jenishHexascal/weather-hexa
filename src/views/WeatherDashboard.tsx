@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { weatherIcons } from "./weatherIcons";
 import { LocationIcon } from "../icons/LocationIcon";
 
-// ... [Keep your existing Interfaces and Helper Functions identical] ...
-
 interface CurrentWeather {
   city: string;
   date: string;
@@ -179,24 +177,28 @@ export const WeatherDashboard: React.FC<Props> = ({
           zIndex: 2,
           display: "flex",
           flexDirection: "column",
-          height: "100%",
         }}
       >
         {/* HEADER SECTION */}
         <header className="weather-top-bar glass-panel">
           <div className="location-group">
             <div
-              style={{ display: "flex", alignItems: "flex-end", gap: "15px" }}
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                gap: "0.938rem",
+              }}
             >
               <span className="city-name">{current.city}</span>
               <span
                 className="current-date-text"
-                style={{ marginBottom: "8px" }}
+                style={{ marginBottom: "0.5rem" }}
               >
                 | {current.date}
               </span>
             </div>
           </div>
+
           <div className="time-group">
             <div className="time">{current.time}</div>
           </div>
@@ -216,14 +218,16 @@ export const WeatherDashboard: React.FC<Props> = ({
           <div className="hero-left">
             <div className="metric-card glass-panel">
               <span className="metric-label">Wind Velocity</span>
-              <span className="metric-value">
-                {current.WindSpeed}{" "}
-                <small style={{ fontSize: "0.5em" }}>KM/H</small>
-              </span>
+              <p className="metric-value">
+                {current.WindSpeed}
+                <span className="metric-unit">KM/H</span>
+              </p>
             </div>
+
             <div className="metric-card glass-panel">
               <span className="metric-label">Humidity</span>
-              <span className="metric-value">{current.Humidity}%</span>
+              <p className="metric-value">{current.Humidity}
+                 <span className="metric-unit">%</span></p>
             </div>
           </div>
 
@@ -242,13 +246,14 @@ export const WeatherDashboard: React.FC<Props> = ({
           <div className="hero-right">
             <div className="metric-card glass-panel">
               <span className="metric-label">Real Feel</span>
-              <span className="metric-value">{displayFeelsLike}°</span>
+              <p className="metric-value">{displayFeelsLike}°</p>
             </div>
             <div className="metric-card glass-panel">
               <span className="metric-label">Precipitation</span>
-              <span className="metric-value">
-                {current.Precip} <small style={{ fontSize: "0.5em" }}>MM</small>
-              </span>
+              <p className="metric-value">
+                {current.Precip} <small style={{ fontSize: "0.5em" }}>
+                  <span className="metric-unit">MM</span></small>
+              </p>
             </div>
           </div>
         </main>
@@ -261,7 +266,7 @@ export const WeatherDashboard: React.FC<Props> = ({
             </span>
             <div
               className="toggle-group"
-              style={{ display: "flex", gap: "15px" }}
+              style={{ display: "flex", gap: "0.9375rem" }}
             >
               {["24H", "3D", "1W"].map((v) => (
                 <button
@@ -271,8 +276,8 @@ export const WeatherDashboard: React.FC<Props> = ({
                     background: view === v ? "rgba(255,255,255,0.1)" : "none",
                     border: "none",
                     color: "#fff",
-                    padding: "5px 15px",
-                    borderRadius: "20px",
+                    padding: "0.3125rem 0.9375rem",
+                    borderRadius: "1.25rem",
                     cursor: "pointer",
                     fontSize: "1.8vmin",
                     fontWeight: "bold",
@@ -304,7 +309,7 @@ export const WeatherDashboard: React.FC<Props> = ({
                   <div className="forecast-temps">
                     <span>{convertTemp(view === "24H" ? day.temp : day.max, temperatureUnit)}°{temperatureUnit}</span>
                     {view !== "24H" && (
-                      <span style={{ opacity: 0.4, fontSize: '0.6em', marginLeft: '6px' }}>
+                      <span style={{ opacity: 0.4, fontSize: '0.6em', marginLeft: '0.375rem' }}>
                         {convertTemp(day.min, temperatureUnit)}°{temperatureUnit}
                       </span>
                     )}

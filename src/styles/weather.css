@@ -69,17 +69,19 @@
 
 .main-display { text-align: center; }
 .main-temp-value {
-  font-size: 28vmin; /* Massive center temp */
-  font-weight: 100;
+  font-size: 22vmin; /* Massive center temp */
+  font-weight: 400;
   line-height: 0.8;
   text-shadow: 0 0 50px rgba(255,255,255,0.15);
 }
+
 
 .condition-text {
   font-size: 3vmin;
   letter-spacing: 12px;
   text-transform: uppercase;
   margin-top: 2.5vh;
+  font-weight: 400;
   opacity: 0.8;
 }
 

@@ -54,14 +54,23 @@ const getWeatherBackground = (
 ): string => {
   if (type !== "weather") return "";
   const weatherGradients: Record<string, string> = {
-    "4": "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)",
-    "8": "linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)",
-    "18": "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    "11": "linear-gradient(135deg, #434343 0%, #000000 100%)",
-    default: "linear-gradient(135deg, #2b6cb0, #63b3ed)",
+    "4": "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)", // Broken clouds
+    "8": "linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)", // Overcast clouds
+    "18": "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)", // Light rain
+    "19": "linear-gradient(135deg, #5c7cfa 0%, #3b5bdb 100%)", // Moderate rain
+    "20": "linear-gradient(135deg, #364fc7 0%, #1e3a8a 100%)", // Heavy rain
+    "11": "linear-gradient(135deg, #434343 0%, #000000 100%)", // Thunderstorm
+    "13": "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)", // Snow
+    default: "linear-gradient(135deg, #2b6cb0, #63b3ed)", // Default sky blue
   };
   return weatherGradients[code] || weatherGradients["default"];
 };
+
+export const GLASS_GRADIENT = `
+  radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.18) 0%, transparent 75%),
+  radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.12) 0px, transparent 50%),
+  radial-gradient(at 100% 100%, rgba(255, 0, 128, 0.08) 0px, transparent 50%)
+  `;
 
 export const WeatherDashboard: React.FC<Props> = ({
   current,
@@ -98,11 +107,11 @@ export const WeatherDashboard: React.FC<Props> = ({
       bg = `url(${backgroundImage})`;
     } else if (backgroundType === "weather") {
       bg = getWeatherBackground(current.code, "weather");
-    } else {
+    } else if (backgroundType === "solid") {
       bg = backgroundColor;
     }
     return {
-      background: bg,
+      background: bg || "transparent",
       backgroundSize: "cover",
       backgroundPosition: "center",
       color: fontColor,
@@ -133,9 +142,11 @@ export const WeatherDashboard: React.FC<Props> = ({
     ? convertTemp(current.feelsLike, temperatureUnit)
     : null;
 
-    return (
-      <div className="weather-dashboard">
-        {/* BACKGROUND MEDIA LAYER */}
+  const backgroundStyle = getBackgroundStyle();
+
+  return (
+    <div className="weather-dashboard" style={backgroundStyle}>
+      {/* BACKGROUND MEDIA LAYER */}
       <div className="bg-media-container">
         {backgroundType === "image" && backgroundImage && (
           <img src={backgroundImage} className="bg-image" alt="bg" />
@@ -145,21 +156,42 @@ export const WeatherDashboard: React.FC<Props> = ({
             <source src={backgroundImage} type="video/mp4" />
           </video>
         )}
-        {/* OPACITY OVERLAY */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: `rgba(0,0,0, ${1 - backgroundOpacity / 100})`,
-          zIndex: 1
-        }} />
+        {/* OPACITY OVERLAY - Show for all background types when opacity < 100 */}
+        {backgroundOpacity < 100 && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: `rgba(0,0,0, ${1 - backgroundOpacity / 100})`,
+              zIndex: 1,
+            }}
+          />
+        )}
       </div>
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
         {/* HEADER SECTION */}
         <header className="weather-top-bar glass-panel">
           <div className="location-group">
-            <div style={{ display: "flex", alignItems: "flex-end", gap: "15px" }}>
+            <div
+              style={{ display: "flex", alignItems: "flex-end", gap: "15px" }}
+            >
               <span className="city-name">{current.city}</span>
-              <span className="current-date-text" style={{ marginBottom: '8px' }}>
-                 | {current.date}
+              <span
+                className="current-date-text"
+                style={{ marginBottom: "8px" }}
+              >
+                | {current.date}
               </span>
             </div>
           </div>
@@ -167,30 +199,43 @@ export const WeatherDashboard: React.FC<Props> = ({
             <div className="time">{current.time}</div>
           </div>
         </header>
-  
+
         {/* MAIN HERO SECTION */}
-        <main className="hero-section" style={{ background: 'transparent', border: 'none', backdropFilter: 'none', boxShadow: 'none' }}>
+        <main
+          className="hero-section"
+          style={{
+            background: "transparent",
+            border: "none",
+            backdropFilter: "none",
+            boxShadow: "none",
+          }}
+        >
           {/* Left Stats */}
           <div className="hero-left">
             <div className="metric-card glass-panel">
               <span className="metric-label">Wind Velocity</span>
-              <span className="metric-value">{current.WindSpeed} <small style={{fontSize: '0.5em'}}>KM/H</small></span>
+              <span className="metric-value">
+                {current.WindSpeed}{" "}
+                <small style={{ fontSize: "0.5em" }}>KM/H</small>
+              </span>
             </div>
             <div className="metric-card glass-panel">
               <span className="metric-label">Humidity</span>
               <span className="metric-value">{current.Humidity}%</span>
             </div>
           </div>
-  
+
           {/* Temperature Centerpiece */}
           <div className="main-display">
-            <div className="weather-icon-main" style={{ marginBottom: '1vh' }}>
+            <div className="weather-icon-main" style={{ marginBottom: "1vh" }}>
               {weatherIcons[current.code]?.({ size: 120 })}
             </div>
-            <h1 className="main-temp-value">{displayTemp}°</h1>
+            <h1 className="main-temp-value">
+              {displayTemp}°{temperatureUnit}
+            </h1>
             <p className="condition-text">{current.condition}</p>
           </div>
-  
+
           {/* Right Stats */}
           <div className="hero-right">
             <div className="metric-card glass-panel">
@@ -199,30 +244,37 @@ export const WeatherDashboard: React.FC<Props> = ({
             </div>
             <div className="metric-card glass-panel">
               <span className="metric-label">Precipitation</span>
-              <span className="metric-value">{current.Precip} <small style={{fontSize: '0.5em'}}>MM</small></span>
+              <span className="metric-value">
+                {current.Precip} <small style={{ fontSize: "0.5em" }}>MM</small>
+              </span>
             </div>
           </div>
         </main>
-  
+
         {/* SCROLLABLE FORECAST SECTION */}
         <footer className="forecast-section glass-panel">
           <div className="forecast-header">
-            <span>{view === "24H" ? "HOURLY FORECAST" : "EXTENDED OUTLOOK"}</span>
-            <div className="toggle-group" style={{ display: 'flex', gap: '15px' }}>
+            <span>
+              {view === "24H" ? "HOURLY FORECAST" : "EXTENDED OUTLOOK"}
+            </span>
+            <div
+              className="toggle-group"
+              style={{ display: "flex", gap: "15px" }}
+            >
               {["24H", "3D", "1W"].map((v) => (
                 <button
                   key={v}
                   className={`forecast-toggle ${view === v ? "active" : ""}`}
-                  style={{ 
-                      background: view === v ? 'rgba(255,255,255,0.1)' : 'none', 
-                      border: 'none', 
-                      color: '#fff', 
-                      padding: '5px 15px',
-                      borderRadius: '20px',
-                      cursor: 'pointer', 
-                      fontSize: '1.8vmin', 
-                      fontWeight: 'bold',
-                      transition: '0.3s'
+                  style={{
+                    background: view === v ? "rgba(255,255,255,0.1)" : "none",
+                    border: "none",
+                    color: "#fff",
+                    padding: "5px 15px",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                    fontSize: "1.8vmin",
+                    fontWeight: "bold",
+                    transition: "0.3s",
                   }}
                   onClick={() => setView(v as any)}
                 >
@@ -231,7 +283,7 @@ export const WeatherDashboard: React.FC<Props> = ({
               ))}
             </div>
           </div>
-  
+
           {/* Scrollable Row */}
           <div className="forecast-row">
             {forecast.map((day, i) => (
@@ -242,7 +294,13 @@ export const WeatherDashboard: React.FC<Props> = ({
                 <div className="forecast-temps">
                   <span>{convertTemp(day.max, temperatureUnit)}°</span>
                   {view !== "24H" && (
-                    <span style={{ opacity: 0.4, fontSize: '0.6em', marginLeft: '6px' }}>
+                    <span
+                      style={{
+                        opacity: 0.4,
+                        fontSize: "0.6em",
+                        marginLeft: "6px",
+                      }}
+                    >
                       {convertTemp(day.min, temperatureUnit)}°
                     </span>
                   )}
@@ -251,7 +309,7 @@ export const WeatherDashboard: React.FC<Props> = ({
             ))}
           </div>
         </footer>
-        </div>
       </div>
-    );
+    </div>
+  );
 };

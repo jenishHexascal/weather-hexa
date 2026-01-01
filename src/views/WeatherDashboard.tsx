@@ -141,6 +141,8 @@ export const WeatherDashboard: React.FC<Props> = ({
   const displayFeelsLike = current.feelsLike
     ? convertTemp(current.feelsLike, temperatureUnit)
     : null;
+    const displayForecast = view === "24H" ? [...forecast, ...forecast] : forecast;
+    const marqueeDuration = `${forecast.length * 3}s`;
 
   const backgroundStyle = getBackgroundStyle();
 
@@ -283,31 +285,34 @@ export const WeatherDashboard: React.FC<Props> = ({
               ))}
             </div>
           </div>
-
-          {/* Scrollable Row */}
-          <div className="forecast-row">
-            {forecast.map((day, i) => (
-              <div key={i} className="forecast-card">
-                <span className="forecast-day">{day.day}</span>
-                <span className="forecast-condition">{day.condition}</span>
-                {weatherIcons[day.code]?.({ size: 50 })}
-                <div className="forecast-temps">
-                  <span>{convertTemp(day.max, temperatureUnit)}°</span>
-                  {view !== "24H" && (
-                    <span
-                      style={{
-                        opacity: 0.4,
-                        fontSize: "0.6em",
-                        marginLeft: "6px",
-                      }}
-                    >
-                      {convertTemp(day.min, temperatureUnit)}°
-                    </span>
-                  )}
+          {/* Apply marquee classes conditionally */}
+          <div className="forecast-row" style={{ overflow: view === "24H" ? 'hidden' : 'auto' }}>
+            <div 
+              className={`marquee-container ${view === "24H" ? "marquee-active" : ""}`}
+              style={{ 
+                // @ts-ignore (Passing dynamic duration to CSS variable)
+                "--MarqueeDuration": marqueeDuration 
+              }}
+            >
+              {displayForecast.map((day, i) => (
+                <div key={`${day.day}-${i}`} className="forecast-card">
+                  <span className="forecast-day">{day.day}</span>
+                  <span className="forecast-condition" style={{fontSize: '1.2vmin', opacity: 0.7}}>
+                    {day.condition}
+                  </span>
+                  {weatherIcons[day.code]?.({ size: 40 })}
+                  <div className="forecast-temps">
+                    <span>{convertTemp(view === "24H" ? day.temp : day.max, temperatureUnit)}°{temperatureUnit}</span>
+                    {view !== "24H" && (
+                      <span style={{ opacity: 0.4, fontSize: '0.6em', marginLeft: '6px' }}>
+                        {convertTemp(day.min, temperatureUnit)}°{temperatureUnit}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </div>          
         </footer>
       </div>
     </div>

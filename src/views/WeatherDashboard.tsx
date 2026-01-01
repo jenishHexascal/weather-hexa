@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { weatherIcons } from "./weatherIcons";
 import { LocationIcon } from "../icons/LocationIcon";
+import { WindIcon } from "../icons/WindIcon";
+import { HumidityIcon } from "../icons/HumidityIcon";
+import { PressureIcon } from "../icons/PressureIcon";
+import { RainIcon } from "../icons/RainIcon";
 
 interface CurrentWeather {
   city: string;
@@ -158,7 +162,7 @@ export const WeatherDashboard: React.FC<Props> = ({
   };
 
   const displayTemp = convertTemp(current.temp, temperatureUnit);
- const displayPressure = current.Pressure
+  const displayPressure = current.Pressure;
   const displayForecast =
     view === "24H" ? [...forecast, ...forecast] : forecast;
   const marqueeDuration = `${forecast.length * 3}s`;
@@ -198,6 +202,8 @@ export const WeatherDashboard: React.FC<Props> = ({
           zIndex: 2,
           display: "flex",
           flexDirection: "column",
+          justifyContent: "space-between",
+          height: "100%",
         }}
       >
         {/* HEADER SECTION */}
@@ -216,62 +222,61 @@ export const WeatherDashboard: React.FC<Props> = ({
         </header>
 
         {/* MAIN HERO SECTION */}
-        <main
-          className="hero-section"
-          style={{
-            background: "transparent",
-            border: "none",
-            backdropFilter: "none",
-            boxShadow: "none",
-          }}
-        >
-          {/* Left Stats */}
-          <div className="hero-left">
-            <div className="metric-card glass-panel">
-              <span className="metric-label">Wind Velocity</span>
-              <p className="metric-value">
-                {current.WindSpeed}
-                <span className="metric-unit">KM/H</span>
-              </p>
-            </div>
-
-            <div className="metric-card glass-panel">
-              <span className="metric-label">Humidity</span>
-              <p className="metric-value">
-                {current.Humidity}
-                <span className="metric-unit">%</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Temperature Centerpiece */}
+        <main className="hero-section">
+          {/* ITEM 1: Temperature (Now Fixed to the Left) */}
           <div className="main-display">
-            <div className="weather-icon-main" style={{ marginBottom: "1vh" }}>
-              {weatherIcons[current.code]?.({ size: 120 })}
-            </div>
+            <div>
             <h1 className="main-temp-value">
               {displayTemp}°{temperatureUnit}
             </h1>
             <p className="condition-text">{current.condition}</p>
+            </div>
+            <div className="weather-icon-main" style={{ marginBottom: "1vh" }}>
+              {weatherIcons[current.code]?.({ size: 140 })}
+            </div>
           </div>
 
-          {/* Right Stats */}
-          <div className="hero-right">
-            <div className="metric-card glass-panel">
-              <span className="metric-label">Pressure</span>
-               <p className="metric-value">
-                {displayPressure}
-                <span className="metric-unit">hPa</span>
-              </p>
+          {/* ITEM 2: Metrics Group (Fixed to the Right) */}
+          <div className="metrics-container-right">
+            {/* Left Column of Stats */}
+            <div className="hero-left">
+              <div className="metric-card glass-panel">
+                <span className="metric-label">Wind Velocity</span>
+                <p className="metric-value">
+                <WindIcon size={30}/> 
+                  {current.WindSpeed}
+                  <span className="metric-unit">mph</span>
+                </p>
+              </div>
+
+              <div className="metric-card glass-panel">
+                <span className="metric-label">Humidity</span>
+                <p className="metric-value">
+                <HumidityIcon size={35}/>
+                  {current.Humidity}
+                  <span className="metric-unit">%</span>
+                </p>
+              </div>
             </div>
-            <div className="metric-card glass-panel">
-              <span className="metric-label">Precipitation</span>
-              <p className="metric-value">
-                {current.Precip}{" "}
-                <small style={{ fontSize: "0.5em" }}>
-                  <span className="metric-unit">MM</span>
-                </small>
-              </p>
+
+            {/* Right Column of Stats */}
+            <div className="hero-right">
+              <div className="metric-card glass-panel">
+                <span className="metric-label">Pressure</span>
+                <p className="metric-value">
+                <PressureIcon size={30}/>
+                  {displayPressure}
+                  <span className="metric-unit">hPa</span>
+                </p>
+              </div>
+              <div className="metric-card glass-panel">
+                <span className="metric-label">Precipitation</span>
+                <p className="metric-value">
+                <RainIcon size={30} />
+                  {current.Precip}
+                  <span className="metric-unit">mm</span>
+                </p>
+              </div>
             </div>
           </div>
         </main>
@@ -287,13 +292,12 @@ export const WeatherDashboard: React.FC<Props> = ({
               style={{ display: "flex", gap: "0.9375rem" }}
             >
               {["24H", "3D", "1W"].map((v) => (
-                <button
+                <div
                   key={v}
                   className={`forecast-toggle ${view === v ? "active" : ""}`}
                   style={{
                     background: view === v ? "rgba(255,255,255,0.1)" : "none",
                     border: "none",
-                    color: "#fff",
                     padding: "0.3125rem 0.9375rem",
                     borderRadius: "1.25rem",
                     cursor: "pointer",
@@ -304,7 +308,7 @@ export const WeatherDashboard: React.FC<Props> = ({
                   onClick={() => setView(v as any)}
                 >
                   {v}
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -325,7 +329,10 @@ export const WeatherDashboard: React.FC<Props> = ({
               {displayForecast.map((day, i) => (
                 <div key={`${day.day}-${i}`} className="forecast-card">
                   <span className="forecast-day">{day.day}</span>
-                  <span className="forecast-condition" style={{fontSize: '2.3vmin'}}>
+                  <span
+                    className="forecast-condition"
+                    style={{ fontSize: "2.3vmin" }}
+                  >
                     {day.condition}
                   </span>
                   {weatherIcons[day.code]?.({ size: 70 })}
@@ -338,8 +345,15 @@ export const WeatherDashboard: React.FC<Props> = ({
                       °{temperatureUnit}
                     </span>
                     {view !== "24H" && (
-                      <span style={{ opacity: 0.4, fontSize: '0.8em', marginLeft: '0.375rem' }}>
-                        {convertTemp(day.min, temperatureUnit)}°{temperatureUnit}
+                      <span
+                        style={{
+                          opacity: 0.4,
+                          fontSize: "0.8em",
+                          marginLeft: "0.375rem",
+                        }}
+                      >
+                        {convertTemp(day.min, temperatureUnit)}°
+                        {temperatureUnit}
                       </span>
                     )}
                   </div>

@@ -54,12 +54,19 @@
 }
 /* ===== HERO SECTION (Larger Metrics) ===== */
 .hero-section {
-  flex: 1.2; /* Give more space to central area */
+  flex: 1.1;
   display: grid;
-  grid-template-columns: 1fr 1.8fr 1fr;
-  gap: 1.5rem;
+  /* Two columns: Large Left for Temp, Right for Metrics */
+  grid-template-columns: 1.5fr 1fr; 
+  gap: 2rem;
   align-items: center;
-  padding-bottom: 1.5rem;
+  padding: 1.5rem 0;
+}
+.metrics-container-right {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two side-by-side columns */
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .hero-left, .hero-right {
@@ -73,17 +80,22 @@
 }
 
 .metric-label { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.125rem; }
-.metric-value { font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem; display: block; }
+.metric-value { font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem; display: flex; align-items: center;gap: 0.8rem; }
 .metric-unit {
   font-size: 1.5rem;
   opacity: 0.85;
   font-weight: 500;
-  margin-left: 0.5rem;
+  margin-top: 0.8rem;
 }
 
-.main-display { text-align: center; }
+.main-display { 
+  text-align: center;
+  display: flex;
+  gap: 2rem;
+  justify-content: center; 
+}
 .main-temp-value {
-  font-size: 12rem; 
+  font-size: 14rem; 
   font-weight: 400;
   line-height: 0.9;
   text-shadow: 0 0 3.125rem rgba(255,255,255,0.15);
@@ -95,9 +107,10 @@
   letter-spacing: 0.75rem;
   text-transform: uppercase;
   margin-top: 1.5rem;
-  font-weight: 400;
+  font-weight: 600;
   opacity: 0.8;
 }
+
 
 /* ===== FORECAST (Scrollable) ===== */
 .forecast-section {
@@ -149,7 +162,57 @@
 .forecast-temps { font-size: 1.8rem; font-weight: 600; }
 
 @media (max-width: 1024px) {
-  .hero-section { grid-template-columns: 1fr; padding-bottom: 1.5rem;padding-top: 1.5rem;}
+  .main-display { 
+    flex-direction: column-reverse;
+    
+  }
+  .hero-section {
+    /* Maintain 3-column layout but reduce gap */
+    grid-template-columns: 1fr 1.5fr 1fr; 
+    gap: 1vw;
+    padding: 1vh 0;
+  }
+  .hero-section {
+    grid-template-columns: 1fr; /* Stack Temperature on top of the row of metrics */
+    gap: 2rem;
+  }
+  .metrics-container-right {
+    /* Force 4 columns in one line */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* Ensure the stats columns also go horizontal to save vertical space */
+  .hero-left, .hero-right {
+    display: contents; /* This ignores the div wrappers and lets cards join the 4-column grid */
+  }
+
+  /* Shrink metrics to fit on one line */
+  .metric-card {
+    padding: 1.5vh 1vw !important;
+    min-width: 0; /* Allows card to shrink below content size */
+  }
+
+  .metric-label {
+    font-size: 2vmin !important;
+    letter-spacing: 0.5px;
+  }
+
+  .metric-value {
+    font-size: 3vmin !important;
+    white-space: nowrap; /* Prevents text from breaking into two lines */
+  }
+
+  /* Scale down the center temperature centerpiece */
+  .main-temp-value {
+    font-size: 12vw !important; 
+  }
+
+  .weather-icon-main svg {
+    width: 80px !important;
+    height: 80px !important;
+  }
   .forecast-card { width: auto; flex: 0 0 20rem; align-items: center; justify-items: center; } /* ~130px */
 }
 /* Media handling for background video/image */

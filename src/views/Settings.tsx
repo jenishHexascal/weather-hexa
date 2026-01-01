@@ -484,7 +484,7 @@ export function Settings() {
 
       {(backgroundType === "image" || backgroundType === "video") && (
         <SettingsField>
-          <SettingsLabel>Background Image URL</SettingsLabel>
+          <SettingsLabel>Background Video/Image URL</SettingsLabel>
           <SettingsInputFrame>
             <input
               type="text"

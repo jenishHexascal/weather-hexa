@@ -454,7 +454,7 @@ export function Settings() {
               </select>
             </SettingsInputFrame>
           </SettingsField>
-          {backgroundColor.startsWith("#") && (
+          {/* {backgroundColor.startsWith("#") && (
             <SettingsField>
               <SettingsLabel>Custom Color</SettingsLabel>
               <SettingsInputFrame>
@@ -478,7 +478,7 @@ export function Settings() {
                 </div>
               </SettingsInputFrame>
             </SettingsField>
-          )}
+          )} */}
         </>
       )}
 

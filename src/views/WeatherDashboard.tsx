@@ -118,7 +118,29 @@ export const WeatherDashboard: React.FC<Props> = ({
   };
 
   const getGreeting = (time: string): string => {
-    const hour = parseInt(time.split(":")[0], 10);
+    let hour = 0;
+
+    // Check if time contains AM/PM (12-hour format)
+    if (
+      time.toLowerCase().includes("am") ||
+      time.toLowerCase().includes("pm")
+    ) {
+      const [timePart, modifier] = time.split(" ");
+      let [h] = timePart.split(":");
+      hour = parseInt(h, 10);
+
+      if (modifier.toLowerCase() === "pm" && hour !== 12) {
+        hour += 12;
+      }
+      if (modifier.toLowerCase() === "am" && hour === 12) {
+        hour = 0;
+      }
+    }
+    // Otherwise assume 24-hour format
+    else {
+      hour = parseInt(time.split(":")[0], 10);
+    }
+
     if (hour >= 5 && hour < 12) return "Good Morning";
     if (hour >= 12 && hour < 17) return "Good Afternoon";
     if (hour >= 17 && hour < 21) return "Good Evening";
@@ -136,11 +158,10 @@ export const WeatherDashboard: React.FC<Props> = ({
   };
 
   const displayTemp = convertTemp(current.temp, temperatureUnit);
-  const displayFeelsLike = current.feelsLike
-    ? convertTemp(current.feelsLike, temperatureUnit)
-    : null;
-    const displayForecast = view === "24H" ? [...forecast, ...forecast] : forecast;
-    const marqueeDuration = `${forecast.length * 3}s`;
+ const displayPressure = current.Pressure
+  const displayForecast =
+    view === "24H" ? [...forecast, ...forecast] : forecast;
+  const marqueeDuration = `${forecast.length * 3}s`;
 
   const backgroundStyle = getBackgroundStyle();
 
@@ -182,23 +203,13 @@ export const WeatherDashboard: React.FC<Props> = ({
         {/* HEADER SECTION */}
         <header className="weather-top-bar glass-panel">
           <div className="location-group">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: "0.938rem",
-              }}
-            >
+            <div className="location-city-container">
+              <LocationIcon size={32} />
               <span className="city-name">{current.city}</span>
-              <span
-                className="current-date-text"
-                style={{ marginBottom: "0.5rem" }}
-              >
-                | {current.date}
-              </span>
+              <span className="current-date-text">| {current.date}</span>
             </div>
           </div>
-
+          {/* <div className="greeting">{getGreeting(current.time)}</div> */}
           <div className="time-group">
             <div className="time">{current.time}</div>
           </div>
@@ -226,8 +237,10 @@ export const WeatherDashboard: React.FC<Props> = ({
 
             <div className="metric-card glass-panel">
               <span className="metric-label">Humidity</span>
-              <p className="metric-value">{current.Humidity}
-                 <span className="metric-unit">%</span></p>
+              <p className="metric-value">
+                {current.Humidity}
+                <span className="metric-unit">%</span>
+              </p>
             </div>
           </div>
 
@@ -245,14 +258,19 @@ export const WeatherDashboard: React.FC<Props> = ({
           {/* Right Stats */}
           <div className="hero-right">
             <div className="metric-card glass-panel">
-              <span className="metric-label">Real Feel</span>
-              <p className="metric-value">{displayFeelsLike}°</p>
+              <span className="metric-label">Pressure</span>
+               <p className="metric-value">
+                {displayPressure}
+                <span className="metric-unit">hPa</span>
+              </p>
             </div>
             <div className="metric-card glass-panel">
               <span className="metric-label">Precipitation</span>
               <p className="metric-value">
-                {current.Precip} <small style={{ fontSize: "0.5em" }}>
-                  <span className="metric-unit">MM</span></small>
+                {current.Precip}{" "}
+                <small style={{ fontSize: "0.5em" }}>
+                  <span className="metric-unit">MM</span>
+                </small>
               </p>
             </div>
           </div>
@@ -291,12 +309,17 @@ export const WeatherDashboard: React.FC<Props> = ({
             </div>
           </div>
           {/* Apply marquee classes conditionally */}
-          <div className="forecast-row" style={{ overflow: view === "24H" ? 'hidden' : 'auto' }}>
-            <div 
-              className={`marquee-container ${view === "24H" ? "marquee-active" : ""}`}
-              style={{ 
+          <div
+            className="forecast-row"
+            style={{ overflow: view === "24H" ? "hidden" : "auto" }}
+          >
+            <div
+              className={`marquee-container ${
+                view === "24H" ? "marquee-active" : ""
+              }`}
+              style={{
                 // @ts-ignore (Passing dynamic duration to CSS variable)
-                "--MarqueeDuration": marqueeDuration 
+                "--MarqueeDuration": marqueeDuration,
               }}
             >
               {displayForecast.map((day, i) => (
@@ -307,7 +330,13 @@ export const WeatherDashboard: React.FC<Props> = ({
                   </span>
                   {weatherIcons[day.code]?.({ size: 70 })}
                   <div className="forecast-temps">
-                    <span>{convertTemp(view === "24H" ? day.temp : day.max, temperatureUnit)}°{temperatureUnit}</span>
+                    <span>
+                      {convertTemp(
+                        view === "24H" ? day.temp : day.max,
+                        temperatureUnit
+                      )}
+                      °{temperatureUnit}
+                    </span>
                     {view !== "24H" && (
                       <span style={{ opacity: 0.4, fontSize: '0.8em', marginLeft: '0.375rem' }}>
                         {convertTemp(day.min, temperatureUnit)}°{temperatureUnit}
@@ -317,7 +346,7 @@ export const WeatherDashboard: React.FC<Props> = ({
                 </div>
               ))}
             </div>
-          </div>          
+          </div>
         </footer>
       </div>
     </div>

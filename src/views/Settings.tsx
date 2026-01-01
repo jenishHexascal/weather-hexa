@@ -305,12 +305,15 @@ export function Settings() {
           <select
             className="select"
             value={backgroundType}
-            onChange={(e) => setBackgroundType(e.target.value as 'solid' | 'weather' | 'image')}
+            onChange={(e) => {
+              setBackgroundImage('');
+              setBackgroundType(e.target.value as 'solid' | 'weather' | 'image' | 'video')}}
             disabled={isLoadingBgType}
           >
             <option value="solid">Solid Color</option>
             <option value="weather">Match Weather Conditions</option>
-            <option value="image">Image/Video</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
           </select>
         </SettingsInputFrame>
       </SettingsField>
@@ -341,7 +344,7 @@ export function Settings() {
         </SettingsField>
       )}
 
-      {backgroundType === 'image' && (
+      {(backgroundType === 'image' || backgroundType === 'video') && (
         <SettingsField>
           <SettingsLabel>Background Image URL</SettingsLabel>
           <SettingsInputFrame>
@@ -350,7 +353,9 @@ export function Settings() {
               className="input"
               placeholder="https://example.com/image.jpg"
               value={backgroundImage}
-              onChange={(e) => setBackgroundImage(e.target.value)}
+              onChange={(e) => {
+                  setBackgroundOpacity(50)
+                setBackgroundImage(e.target.value)}}
               disabled={isLoadingBgImage}
             />
           </SettingsInputFrame>
